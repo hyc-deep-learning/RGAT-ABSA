@@ -6,8 +6,9 @@ import torch.nn.functional as F
 def mask_logits(target, mask):
     return target * mask + (1 - mask) * (-1e30)
 
+
 class RelationAttention(nn.Module):
-    def __init__(self, in_dim = 300, hidden_dim = 64):
+    def __init__(self, in_dim=300, hidden_dim=64):
         # in_dim: the dimension fo query vector
         super().__init__()
 
@@ -38,7 +39,8 @@ class LinearAttention(nn.Module):
     '''
     re-implement of gat's attention
     '''
-    def __init__(self, in_dim = 300, mem_dim = 300):
+
+    def __init__(self, in_dim=300, mem_dim=300):
         # in dim, the dimension of query vector
         super().__init__()
         self.linear = nn.Linear(in_dim, mem_dim)
@@ -52,14 +54,14 @@ class LinearAttention(nn.Module):
         mask dmask          [N, L]
         '''
 
-        Q = self.linear(aspect_v) # (N, D)
+        Q = self.linear(aspect_v)  # (N, D)
         Q = Q.unsqueeze(1)  # (N, 1, D)
-        Q = Q.expand_as(feature) # (N, L, D)
-        Q = self.linear(Q) # (N, L, D)
-        feature = self.linear(feature) # (N, L, D)
+        Q = Q.expand_as(feature)  # (N, L, D)
+        Q = self.linear(Q)  # (N, L, D)
+        feature = self.linear(feature)  # (N, L, D)
 
-        att_feature = torch.cat([feature, Q], dim = 2) # (N, L, 2D)
-        att_weight = self.fc(att_feature) # (N, L, 1)
+        att_feature = torch.cat([feature, Q], dim=2)  # (N, L, 2D)
+        att_weight = self.fc(att_feature)  # (N, L, 1)
         dmask = dmask.unsqueeze(2)  # (N, L, 1)
         att_weight = mask_logits(att_weight, dmask)  # (N, L ,1)
 
@@ -95,6 +97,7 @@ class DotprodAttention(nn.Module):
         # out = F.sigmoid(out)
         # (N, D), ([N, L]), (N, L, 1)
         return out
+
 
 class Highway(nn.Module):
     def __init__(self, layer_num, dim):
@@ -151,5 +154,3 @@ class DepparseMultiHeadAttention(nn.Module):
             out = torch.sum(out, dim=2)
         # out = out.squeeze(2)
         return out, Q[0]  # ([N, L]) one head
-
-

@@ -20,6 +20,7 @@ from lxml import etree
 from nltk import word_tokenize
 from nltk.tokenize import TreebankWordTokenizer
 from torch.utils.data import DataLoader, Dataset
+nltk.download('punkt')
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,3 @@
-import math
-
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,13 +12,12 @@ class Rel_GAT(nn.Module):
     Relation gat model, use the embedding of the edges to predict attention weight
     """
 
-    def __init__(self, args, dep_rel_num,  hidden_size=64,  num_layers=2):
+    def __init__(self, args, dep_rel_num, hidden_size=64, num_layers=2):
         super(Rel_GAT, self).__init__()
         self.args = args
         self.num_layers = num_layers
         self.dropout = nn.Dropout(args.gcn_dropout)
         self.leakyrelu = nn.LeakyReLU(1e-2)
-
 
         # gat layer
         # relation embedding, careful initialization?
@@ -45,7 +41,7 @@ class Rel_GAT(nn.Module):
         # gcn layer
         for l in range(self.num_layers):
             # relation based GAT, attention over relations
-            
+
             if True:
                 rel_adj_logits = self.fcs(rel_adj_V).squeeze(2)  # (batch_size, n*n)
             else:
@@ -88,16 +84,16 @@ class GAT(nn.Module):
             input_dim = self.in_dim if layer == 0 else mem_dim
             self.W.append(nn.Linear(input_dim, mem_dim))
 
-    def forward(self, adj,  feature):
+    def forward(self, adj, feature):
         B, N = adj.size(0), adj.size(1)
         dmask = adj.view(B, -1)  # (batch_size, n*n)
         # gcn layer
         for l in range(self.num_layers):
             # Standard GAT:attention over feature
             #####################################
-            h = self.W[l](feature) # (B, N, D)
+            h = self.W[l](feature)  # (B, N, D)
             a_input = torch.cat([h.repeat(1, 1, N).view(
-                B, N*N, -1), h.repeat(1, N, 1)], dim=2)  # (B, N*N, 2*D)
+                B, N * N, -1), h.repeat(1, N, 1)], dim=2)  # (B, N*N, 2*D)
             e = self.leakyrelu(self.afcs(a_input)).squeeze(2)  # (B, N*N)
             attention = F.softmax(mask_logits(e, dmask), dim=1)
             attention = attention.view(*adj.size())

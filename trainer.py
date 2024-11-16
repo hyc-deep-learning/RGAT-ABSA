@@ -151,8 +151,7 @@ def train(args, train_dataset, model, test_dataset):
                 loss = loss / args.gradient_accumulation_steps
 
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(
-                model.parameters(), args.max_grad_norm)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
 
             tr_loss += loss.item()
             if (step + 1) % args.gradient_accumulation_steps == 0:
@@ -166,12 +165,10 @@ def train(args, train_dataset, model, test_dataset):
                     results, eval_loss = evaluate(args, test_dataset, model)
                     all_eval_results.append(results)
                     for key, value in results.items():
-                        tb_writer.add_scalar(
-                            'eval_{}'.format(key), value, global_step)
+                        tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
                     tb_writer.add_scalar('eval_loss', eval_loss, global_step)
                     # tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
-                    tb_writer.add_scalar(
-                        'train_loss', (tr_loss - logging_loss) / args.logging_steps, global_step)
+                    tb_writer.add_scalar('train_loss', (tr_loss - logging_loss) / args.logging_steps, global_step)
                     logging_loss = tr_loss
 
                 # Save model checkpoint
